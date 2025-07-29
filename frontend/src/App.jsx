@@ -1,66 +1,49 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import axios from "axios";
-import { use } from "react";
+import Header from "./components/Header";
+import FormData from "./components/FormData";
+import Footer from "./components/Footer";
 
 function App() {
-  const [data, setData] = useState("");
-  const [inputData, setInputData] = useState("");
-  const [responseMessage, setResponseMessage] = useState("");
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    age: "",
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/data");
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const postData = async () => {
-      try {
-        const response = await axios.post("http://localhost:3000/add-data", {
-          data: inputData,
-        });
-        // console.log("Response from backend:", response.data);
-        setResponseMessage(response.data);
-        setInputData(""); // Clear input field after submission
-      } catch (error) {
-        console.error("Error posting data:", error);
-      }
-    };
-
-    postData();
+    console.log("Form Data Submitted:", formData);
+    setFormData({
+      firstname: "",
+      lastname: "",
+      age: "",
+    });
+    // สามารถทำการส่งข้อมูลไปยัง Backend ได้ที่นี่
   };
 
   return (
-    <div>
-      <h1>Data from Backend:</h1>
-      <p>{data}</p>
-      <div>
-        <form action="" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter new data"
-            value={inputData}
-            onChange={(e) => setInputData(e.target.value)}
-          />
-          <button type="submit">Submit</button>
-        </form>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
+      <div className="flex justify-center items-center flex-grow shadow-xl">
+        <FormData
+          formData={formData} // ส่ง state formData ไปที่ FormData
+          handleChange={handleChange} // ส่ง handleChange ไปที่ FormData
+          handleSubmit={handleSubmit} // ส่ง handleSubmit ไปที่ FormData
+        />
       </div>
-      {responseMessage && (
-        <div>
-          <h2>Response from Backend:</h2>
-          <p>{responseMessage}</p>
-        </div>
-      )}
-    </div> 
+
+      <Footer />
+    </div>
   );
 }
 
