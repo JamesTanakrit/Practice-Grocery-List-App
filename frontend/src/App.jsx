@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import "./App.css";
+import axios from "axios";
+import { use } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState("");
+  const [inputData, setInputData] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/data");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const postData = async () => {
+      try {
+        const response = await axios.post("http://localhost:3000/add-data", {
+          data: inputData,
+        });
+        // console.log("Response from backend:", response.data);
+        setResponseMessage(response.data);
+        setInputData(""); // Clear input field after submission
+      } catch (error) {
+        console.error("Error posting data:", error);
+      }
+    };
+
+    postData();
+  };
 
   return (
-    <>
+    <div>
+      <h1>Data from Backend:</h1>
+      <p>{data}</p>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <form action="" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Enter new data"
+            value={inputData}
+            onChange={(e) => setInputData(e.target.value)}
+          />
+          <button type="submit">Submit</button>
+        </form>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      {responseMessage && (
+        <div>
+          <h2>Response from Backend:</h2>
+          <p>{responseMessage}</p>
+        </div>
+      )}
+    </div> 
+  );
 }
 
-export default App
+export default App;
