@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import CardInfo from "./components/CardInfo";
 
 function App() {
   const [user, setUser] = useState({
@@ -9,6 +10,21 @@ function App() {
     age: "",
   });
   // const [inputData, setInputData] = useState("");
+  const [data, setData] = useState([]);
+
+  async function fetchData() {
+    try {
+      const response = await axios.get("http://localhost:3000/data");
+      const result = response.data;
+      setData(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -56,13 +72,19 @@ function App() {
       alert("Please fill age with a valid number.");
       return;
     }
-    const response = await axios.post("http://localhost:3000/submit", user);
-    console.log(response.data.message);
-    setUser({
-      firstname: "",
-      lastname: "",
-      age: "",
-    });
+    try {
+      const response = await axios.post("http://localhost:3000/submit", user);
+      console.log(response.data.message);
+      setUser({
+        firstname: "",
+        lastname: "",
+        age: "",
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -115,6 +137,24 @@ function App() {
             submit
           </button>
         </form>
+      </section>
+
+      {/* แสดงข้อมูลจาก Backend */}
+      <section className="flex flex-col items-center my-4 ">
+        <h2 className="bg-white w-full text-center p-4 text-4xl font-bold mb-4 shadow-md">
+          Data from Backend:
+        </h2>
+        <ul className="grid grid-cols-3 gap-4 w-full justify-items-center">
+          {data.map((item, index) => (
+            <CardInfo
+              key={index}
+              id={index}
+              firstname={item.firstname}
+              lastname={item.lastname}
+              age={item.age}
+            />
+          ))}
+        </ul>
       </section>
     </div>
   );
