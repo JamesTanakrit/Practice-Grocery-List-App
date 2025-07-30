@@ -59,6 +59,20 @@ function App() {
     }
   }
 
+  async function deleteInfo(id) {
+    console.log(id);
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/delete-post/${id}`
+      );
+      console.log(response.data.message);
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <div>
       <section className="flex flex-row justify-center h-10 items-center my-4">
@@ -82,6 +96,7 @@ function App() {
               firstname={item.firstname}
               lastname={item.lastname}
               age={item.age}
+              onClick={deleteInfo}
             />
           ))}
         </ul>

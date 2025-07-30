@@ -6,6 +6,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path";
+import { log } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,6 +62,37 @@ app.post("/submit", (req, res) => {
       }
 
       res.send({ message: "Data received and saved successfully!" });
+    });
+  });
+});
+
+app.delete("/delete-post/:id", (req, res) => {
+  const { id } = req.params;
+  const dataFilePath = path.join(__dirname, "mock", "data.json");
+  // console.log(id);
+  fs.readFile(dataFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return res.status(500).send("Internal server error");
+    }
+
+    let jsonData = [];
+    if (data) {
+      jsonData = JSON.parse(data); // แปลงข้อมูลที่อ่านจากไฟล์เป็น JSON
+    }
+
+    // console.log(jsonData);
+    jsonData = jsonData.filter((_, index) => {
+      return index !== parseInt(id);
+    });
+
+    fs.writeFile(dataFilePath, JSON.stringify(jsonData, null, 2), (err) => {
+      if (err) {
+        console.error("Error writing file:", err);
+        return res.status(500).send("Internal server error");
+      }
+
+      res.send({ message: "Delete Data successfully!" });
     });
   });
 });
